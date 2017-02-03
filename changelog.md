@@ -1,3 +1,8 @@
+# v1.1.0
+> February 3rd, 2017
+
+- If an error occurs, return `request.auth.credentials` (if set) as `user` in the context object returned
+
 # v1.0.6
 > November 6, 2016
 

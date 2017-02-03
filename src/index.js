@@ -242,6 +242,7 @@ const handler = (route, options = {}) => async (request, reply) => {
 
   // Get GraphQL params from the request and POST body data.
   const { query, variables, operationName } = getGraphQLParams(request, payload);
+  const user = request && request.auth && request.auth.credentials;
 
   try {
     // Create the result
@@ -260,7 +261,7 @@ const handler = (route, options = {}) => async (request, reply) => {
     // Format any encountered errors.
     if (result && result.errors) {
       result.errors = result.errors.map((err) =>
-        errorFormatter(err, { query, operationName, variables }));
+        errorFormatter(err, { query, operationName, variables, user }));
     }
 
     // If allowed to show GraphiQL, present it instead of JSON.
@@ -274,7 +275,11 @@ const handler = (route, options = {}) => async (request, reply) => {
     // Return error, picking up Boom overrides
     const errors = error.data || [error];
     const statusCode = error.output && error.output.statusCode;
-    reply({ errors: errors.map(err => errorFormatter(err, { query, operationName, variables })) })
+    const formattedErrors = errors.map(err => errorFormatter(err, {
+      query, operationName, variables, user,
+    }));
+
+    reply({ errors: formattedErrors })
       .code(statusCode || 500);
   }
 };
